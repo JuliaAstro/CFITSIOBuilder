@@ -14,6 +14,10 @@ cd cfitsio
 ./configure --prefix=$prefix --host=$target --enable-reentrant
 make -j shared
 make install
+# On Windows platforms, we need to move our .dll files to bin
+if [[ "${target}" == *mingw* ]]; then
+   mv ${prefix}/lib/*.dll ${prefix}/bin
+fi
 
 """
 
