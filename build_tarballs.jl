@@ -1,4 +1,9 @@
+# Note that this script can accept some limited command-line arguments, run
+# `julia build_tarballs.jl --help` to see a usage message.
 using BinaryBuilder
+
+name = "CFITSIOBuilder"
+version = v"3.44.0"
 
 # Collection of sources required to build CFITSIO
 sources = [
@@ -14,25 +19,25 @@ cd cfitsio
 ./configure --prefix=$prefix --host=$target --enable-reentrant
 make -j shared
 make install
-# On Windows platforms, we need to move our .dll files to bin
-if [[ "${target}" == *mingw* ]]; then
-    mkdir -p ${prefix}/bin
-    mv ${prefix}/lib/*.dll ${prefix}/bin
-fi
 
 """
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
 platforms = [
-    BinaryProvider.Linux(:i686, :glibc, :blank_abi),
-    BinaryProvider.Linux(:x86_64, :glibc, :blank_abi),
-    BinaryProvider.Linux(:aarch64, :glibc, :blank_abi),
-    BinaryProvider.Linux(:armv7l, :glibc, :eabihf),
-    BinaryProvider.Linux(:powerpc64le, :glibc, :blank_abi),
-    BinaryProvider.MacOS(:x86_64, :blank_libc, :blank_abi),
-    BinaryProvider.Windows(:i686, :blank_libc, :blank_abi),
-    BinaryProvider.Windows(:x86_64, :blank_libc, :blank_abi)
+    Linux(:i686, :glibc),
+    Linux(:x86_64, :glibc),
+    Linux(:aarch64, :glibc),
+    Linux(:armv7l, :glibc, :eabihf),
+    Linux(:powerpc64le, :glibc),
+    Linux(:i686, :musl),
+    Linux(:x86_64, :musl),
+    Linux(:aarch64, :musl),
+    Linux(:armv7l, :musl, :eabihf),
+    MacOS(:x86_64),
+    FreeBSD(:x86_64),
+    Windows(:i686),
+    Windows(:x86_64)
 ]
 
 # The products that we will ensure are always built
@@ -46,5 +51,5 @@ dependencies = [
 ]
 
 # Build the tarballs, and possibly a `build.jl` as well.
-build_tarballs(ARGS, "CFITSIO", sources, script, platforms, products, dependencies)
+build_tarballs(ARGS, name, version, sources, script, platforms, products, dependencies)
 
