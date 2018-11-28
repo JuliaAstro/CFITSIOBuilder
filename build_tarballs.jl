@@ -3,42 +3,30 @@
 using BinaryBuilder
 
 name = "CFITSIOBuilder"
-version = v"3.44.0"
+version = v"3.45.0"
 
 # Collection of sources required to build CFITSIO
 sources = [
-    "http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio3440.tar.gz" =>
-    "dd1cad4208fb7a9462914177f26672ccfb21fc8a1f6366e41e7b69b13ad7fd24",
+    "http://heasarc.gsfc.nasa.gov/FTP/software/fitsio/c/cfitsio3450.tar.gz" =>
+    "bf6012dbe668ecb22c399c4b7b2814557ee282c74a7d5dc704eb17c30d9fb92e",
 
 ]
 
 # Bash recipe for building across all platforms
 script = raw"""
-cd $WORKSPACE/srcdir
-cd cfitsio
-./configure --prefix=$prefix --host=$target --enable-reentrant
+cd $WORKSPACE/srcdir/cfitsio
+if [[ "${target}" == *freebsd* ]]; then
+    ./configure --prefix=$prefix --host=$target --enable-reentrant CC=gcc
+else
+    ./configure --prefix=$prefix --host=$target --enable-reentrant
+fi
 make -j shared
 make install
-
 """
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
-platforms = [
-    Linux(:i686, :glibc),
-    Linux(:x86_64, :glibc),
-    Linux(:aarch64, :glibc),
-    Linux(:armv7l, :glibc, :eabihf),
-    Linux(:powerpc64le, :glibc),
-    Linux(:i686, :musl),
-    Linux(:x86_64, :musl),
-    Linux(:aarch64, :musl),
-    Linux(:armv7l, :musl, :eabihf),
-    MacOS(:x86_64),
-    FreeBSD(:x86_64),
-    Windows(:i686),
-    Windows(:x86_64)
-]
+platforms = supported_platforms()
 
 # The products that we will ensure are always built
 products(prefix) = [
