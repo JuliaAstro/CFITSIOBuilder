@@ -35,5 +35,5 @@ deploy:
     file: products/*
     skip_cleanup: true
     on:
-        repo: mweastwood/CFITSIOBuilder
+        repo: JuliaAstro/CFITSIOBuilder
         tags: true
